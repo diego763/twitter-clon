@@ -1,44 +1,51 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { CreateTuitDto } from './dto';
+
 import { Tuit } from './tuit.entity';
 
 @Injectable()
 export class TuitsService {
-  private tuits: Tuit[] = [
-    {
-      id: '1',
-      message: 'Hello, this is a message',
-    },
-  ];
+  constructor(
+    @InjectRepository(Tuit) private readonly tuitRepository: Repository<Tuit>,
+  ) {}
 
-  all(): Tuit[] {
-    return this.tuits;
+  async all(): Promise<Tuit[]> {
+    return await this.tuitRepository.find();
   }
 
-  get(id: string): Tuit {
-    const tuit = this.tuits.find((item) => item.id === id);
+  async get(id: number): Promise<Tuit> {
+    const tuit = await this.tuitRepository.findOne(id);
     if (!tuit) {
       throw new NotFoundException('No se encontro el tuit');
     }
     return tuit;
   }
 
-  create(message: string): void {
-    this.tuits.push({
-      id: (Math.floor(Math.random() * 2000) + 1).toString(),
+  async create({ message }: CreateTuitDto): Promise<Tuit> {
+    const tuit = this.tuitRepository.create({ message });
+    return await this.tuitRepository.save(tuit);
+  }
+
+  async update(id: number, message: string): Promise<Tuit> {
+    const tuit: Tuit = await this.tuitRepository.preload({
+      id,
       message,
     });
-  }
 
-  update(id: string, message: string): Tuit {
-    const tuit = this.get(id);
-    tuit.message = message;
-    return tuit;
-  }
-
-  delete(id: string): void {
-    const index = this.tuits.findIndex((item) => item.id === id);
-    if (index >= 0) {
-      this.tuits.splice(index, 1);
+    if (!tuit) {
+      throw new NotFoundException('Resource not found');
     }
+
+    return await this.tuitRepository.save(tuit);
+  }
+
+  async delete(id: number): Promise<void> {
+    const tuit = await this.get(id);
+    if (!tuit) {
+      throw new NotFoundException('Resource not found');
+    }
+    await this.tuitRepository.remove(tuit);
   }
 }

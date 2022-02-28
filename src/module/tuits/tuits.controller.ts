@@ -20,32 +20,35 @@ export class TuitsController {
   constructor(private readonly tuitService: TuitsService) {}
 
   @Get()
-  getTuits(@Query() filterQuery: object): Tuit[] {
+  getTuits(@Query() filterQuery: object): Promise<Tuit[]> {
     console.log(filterQuery); //parametros por query url string
     return this.tuitService.all();
   }
 
   @Get(':id')
-  getTuit(@Param('id') id: string): Tuit {
+  getTuit(@Param('id') id: number): Promise<Tuit> {
     // @Param() param -> se puede recibir asi el objeto completo, para imprimir seria, "param.id"
     return this.tuitService.get(id);
   }
 
   @Post()
-  createTuit(@Body() body: CreateTuitDto): void {
+  createTuit(@Body() body: CreateTuitDto): Promise<Tuit> {
     // @Body('title') title: string -> se puede recuperar un solo valor o el objeto completo
     // console.log(body instanceof CreateTuitDto);
-    return this.tuitService.create(body?.message);
+    return this.tuitService.create(body);
   }
 
   @Patch(':id')
-  //   @Put(':id')
-  updateTuit(@Param('id') id: string, @Body() body: UpdateTuitDto): Tuit {
+  @Put(':id')
+  updateTuit(
+    @Param('id') id: number,
+    @Body() body: UpdateTuitDto,
+  ): Promise<Tuit> {
     return this.tuitService.update(id, body.message);
   }
 
   @Delete(':id')
-  deleteTuit(@Param('id') id: string): void {
+  deleteTuit(@Param('id') id: number): Promise<void> {
     return this.tuitService.delete(id);
   }
 }
