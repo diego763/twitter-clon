@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { TuitsModule } from './module/tuits/tuits.module';
+import { UsersModule } from './module/users/users.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { TuitsModule } from './module/tuits/tuits.module';
       autoLoadEntities: true, //se cargan los modelos automaticamente
       synchronize: true, // bueno en desarrollo, cualquier cambio aplicado en los modelos se aplica en la base de datos. En produccion quitar
     }),
+    UsersModule,
   ],
   controllers: [],
   providers: [],

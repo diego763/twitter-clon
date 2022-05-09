@@ -11,7 +11,7 @@ import {
   Put,
   Query,
 } from '@nestjs/common';
-import { CreateTuitDto, UpdateTuitDto } from './dto';
+import { CreateTuitDto, PaginationQueryDto, UpdateTuitDto } from './dto';
 import { Tuit } from './tuit.entity';
 import { TuitsService } from './tuits.service';
 
@@ -20,9 +20,12 @@ export class TuitsController {
   constructor(private readonly tuitService: TuitsService) {}
 
   @Get()
-  getTuits(@Query() filterQuery: object): Promise<Tuit[]> {
+  getTuits(
+    @Query() filterQuery: object,
+    @Query() { limit, offset }: PaginationQueryDto,
+  ): Promise<Tuit[]> {
     console.log(filterQuery); //parametros por query url string
-    return this.tuitService.all();
+    return this.tuitService.all({ limit, offset });
   }
 
   @Get(':id')
@@ -35,6 +38,7 @@ export class TuitsController {
   createTuit(@Body() body: CreateTuitDto): Promise<Tuit> {
     // @Body('title') title: string -> se puede recuperar un solo valor o el objeto completo
     // console.log(body instanceof CreateTuitDto);
+    console.log(body);
     return this.tuitService.create(body);
   }
 
