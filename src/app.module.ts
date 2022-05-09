@@ -1,25 +1,25 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 import { TuitsModule } from './module/tuits/tuits.module';
 import { UsersModule } from './module/users/users.module';
+import { DatabaseModule } from './database/database.module';
 
 @Module({
   imports: [
-    TuitsModule,
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'admin',
-      password: '123456',
-      database: 'postgres',
-      autoLoadEntities: true, //se cargan los modelos automaticamente
-      synchronize: true, // bueno en desarrollo, cualquier cambio aplicado en los modelos se aplica en la base de datos. En produccion quitar
+    ConfigModule.forRoot({
+      isGlobal: true,
     }),
+    TuitsModule,
+    DatabaseModule,
     UsersModule,
   ],
   controllers: [],
   providers: [],
 })
-export class AppModule {}
+export class AppModule {
+  static port: number;
+  constructor(private readonly configService: ConfigService) {
+    AppModule.port = this.configService.get<number>('PORT');
+  }
+}
